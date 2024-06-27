@@ -88,6 +88,9 @@ def create_application(app_data):
             namespace="default"
         )
 
+        # Create the service
+        create_service(app_data)
+
         # Generate a unique Ingress name
         ingress_name = f"{app_name.lower()}-ingress-{generate_random_name()}"
 
@@ -106,7 +109,7 @@ def create_application(app_data):
                                 "pathType": "ImplementationSpecific",  # Specify a valid pathType
                                 "backend": {
                                     "service": {
-                                        "name": deployment_name,
+                                        "name": app_name.lower(),
                                         "port": {
                                             "number": app_data["ServicePort"]
                                         }
@@ -130,6 +133,26 @@ def create_application(app_data):
     except ApiException as e:
         print(f"Exception when creating Deployment: {e}")
         return None
+
+def create_service(app_data):
+    service = client.V1Service(
+        api_version="v1",
+        kind="Service",
+        metadata=client.V1ObjectMeta(name=app_data['AppName'].lower()),
+        spec=client.V1ServiceSpec(
+            selector={"app": app_data['AppName']},
+            ports=[client.V1ServicePort(port=80, target_port=app_data['ServicePort'])]
+        )
+    )
+
+    try:
+        api_response = core_v1_api.create_namespaced_service(
+            namespace="default",
+            body=service
+        )
+        print("Service created. Status='%s'" % api_response.status)
+    except ApiException as e:
+        print("Exception when creating service: %s\n" % e)
 
 def generate_random_name(length=10):
     letters = string.ascii_lowercase
