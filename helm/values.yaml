@@ -1,0 +1,22 @@
+name: 
+  app: simple-kaas
+  service_account: simple-kaas-sa
+  role: simple-kaas-role
+  roleBinding: simple-kaas-rolebinding
+  service: simple-kaas-service
+  ingress: simple-kaas-ingress
+
+namespace: default
+deployment:
+  image: aidawm/simple_kaas
+  tag: latest
+  replicas: 1
+  resources:
+    cpu_limit: 500m
+    cpu_request: 500m
+    memory_limit: 1Gi
+    memory_request: 1Gi
+
+network: 
+  port: 4040
+  host: localhost
