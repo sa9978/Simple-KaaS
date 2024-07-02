@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: simple-kaas-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: simple-kaas-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "create", "delete", "update"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create", "delete", "update"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "create", "delete", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: simple-kaas-rolebinding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: simple-kaas-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: simple-kaas-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-kaas
+  labels:
+    app: simple-kaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-kaas
+  template:
+    metadata:
+      labels:
+        app: simple-kaas
+    spec:
+      serviceAccountName: simple-kaas-sa
+      containers:
+      - name: simple-kaas
+        image: aidawm/simple_kaas
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 4040
+        env:
+        - name: FLASK_ENV
+          value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-kaas-service
+spec:
+  selector:
+    app: simple-kaas
+  ports:
+    - protocol: TCP
+      port: 4040
+      targetPort: 4040
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-kaas-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: simple-kaas-service
+            port:
+              number: 80
