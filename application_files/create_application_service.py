@@ -8,7 +8,6 @@ import string
 config.load_kube_config()
 print(config.list_kube_config_contexts())
 
-
 # Kubernetes API clients
 apps_v1_api = client.AppsV1Api()
 core_v1_api = client.CoreV1Api()
@@ -24,6 +23,8 @@ def create_application(app_data):
         ram_request = app_data["Resources"]["RAM"]
         envs = app_data.get("Envs", [])
 
+        print(f"Creating application '{app_name}'...")
+        
         # Handle secrets
         secrets = []
         for env in envs:
@@ -40,6 +41,7 @@ def create_application(app_data):
                 # Create the secret
                 try:
                     core_v1_api.create_namespaced_secret(namespace="default", body=secret)
+                    print(f"Secret '{secret_name}' created.")
                 except ApiException as e:
                     if e.status == 409:
                         print(f"Secret '{secret_name}' already exists.")
@@ -50,6 +52,8 @@ def create_application(app_data):
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         deployment_name = f"{app_name.lower()}-deployment-{timestamp}"
 
+        print(f"Creating deployment '{deployment_name}'...")
+        
         # Define container specification
         container = client.V1Container(
             name=app_name.lower(),
@@ -90,7 +94,10 @@ def create_application(app_data):
             namespace="default"
         )
 
+        print(f"Deployment '{deployment_name}' created successfully.")
+        
         # Create the service
+        print(f"Creating service for '{app_name}'...")
         create_service(app_data)
 
         # Generate a unique Ingress name
@@ -124,6 +131,7 @@ def create_application(app_data):
             }
             try:
                 networking_v1_api.create_namespaced_ingress(namespace="default", body=ingress_body)
+                print(f"Ingress '{ingress_name}' created.")
             except ApiException as e:
                 if e.status == 409:
                     print(f"Ingress '{ingress_name}' already exists.")
@@ -152,9 +160,9 @@ def create_service(app_data):
             namespace="default",
             body=service
         )
-        print("Service created. Status='%s'" % api_response.status)
+        print(f"Service '{app_data['AppName'].lower()}' created. Status: '{api_response.status}'")
     except ApiException as e:
-        print("Exception when creating service: %s\n" % e)
+        print(f"Exception when creating service: {e}")
 
 def generate_random_name(length=10):
     letters = string.ascii_lowercase
