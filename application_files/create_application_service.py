@@ -1,11 +1,12 @@
 from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 import datetime
 import base64
 import random
 import string
 
-# Load Kubernetes configuration
-print(config.load_incluster_config())
+config.load_kube_config()
+print(config.list_kube_config_contexts())
 
 
 # Kubernetes API clients
