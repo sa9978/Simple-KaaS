@@ -11,10 +11,13 @@ spec:
   selector:
     matchLabels:
       app: {{.Values.name.app}}
+      monitor: "true"
+      
   template:
     metadata:
       labels:
         app: {{.Values.name.app}}
+        monitor: "true"
     spec:
       serviceAccountName: {{.Values.name.service_account}}
       containers:
@@ -30,4 +33,5 @@ spec:
             memory: {{.Values.deployment.resources.memory_limit}}
           requests:
             cpu: {{.Values.deployment.resources.cpu_request}}
-            memory: {{.Values.deployment.resources.memory_request}}
+            memory: {{.Values.deployment.resources.memory_request}}   
+  
