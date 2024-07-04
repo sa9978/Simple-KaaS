@@ -147,9 +147,9 @@ def metrics():
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
-@app.route('/healthz', methods=['GET'])
-def health_check():
-    return jsonify({"status": "healthy"}), 200
+# @app.route('/healthz', methods=['GET'])
+# def health_check():
+#     return jsonify({"status": "healthy"}), 200
 
 if __name__ == '__main__':
     start_http_server(8000)  # Start Prometheus metrics exporter
