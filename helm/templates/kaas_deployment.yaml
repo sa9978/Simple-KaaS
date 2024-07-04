@@ -26,6 +26,20 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: {{.Values.network.port}}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 4040
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 4040 
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 4040
       env:
         resources:
           limits:
@@ -34,4 +48,5 @@ spec:
           requests:
             cpu: {{.Values.deployment.resources.cpu_request}}
             memory: {{.Values.deployment.resources.memory_request}}   
+      
   
