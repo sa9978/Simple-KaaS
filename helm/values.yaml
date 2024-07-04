@@ -5,6 +5,7 @@ name:
   roleBinding: simple-kaas-rolebinding
   service: simple-kaas-service
   ingress: simple-kaas-ingress
+  hpa: simple-kaas-hpa
 
 namespace: default
 deployment:
