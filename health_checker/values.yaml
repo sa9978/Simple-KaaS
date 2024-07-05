@@ -1,0 +1,15 @@
+global:
+  postgresql:
+    database: kaas
+    password: asdf
+    repmgrPassword: asdf
+    repmgrUsername: postgres
+    postgresqlUsername: postgres
+    postgresqlPassword: asdf
+    postgresqlDatabase: kaas
+    username: postgres
+    image:
+      debug: true
+  pgpool:
+    adminUsername: postgres
+    adminPassword: asdf
