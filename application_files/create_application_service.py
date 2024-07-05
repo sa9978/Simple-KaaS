@@ -5,8 +5,8 @@ import base64
 import random
 import string
 
-config.load_kube_config()
-print(config.list_kube_config_contexts())
+config.load_incluster_config()
+# print(config.list_kube_config_contexts())
 
 # Kubernetes API clients
 apps_v1_api = client.AppsV1Api()

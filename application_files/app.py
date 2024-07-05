@@ -3,11 +3,15 @@ import logging
 import time
 from  create_application_service import *
 from get_deployment_info_service import *
-from prometheus_client import Counter, Histogram, Summary, start_http_server
+from prometheus_client import Counter, Histogram, Summary, start_http_server,make_wsgi_app
 from kubernetes import client, config
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 import create_predefined
 
 app = Flask(__name__)
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+    '/metrics': make_wsgi_app()
+})
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -48,7 +52,7 @@ def deployment_status():
         return jsonify({"error": "Missing 'app_name' parameter"}), 400
 
     try:
-        result = create_predefined.get_deployment_status_and_pods(app_name, namespace)
+        result = get_deployment_status_and_pods(app_name, namespace)
         return jsonify(result)
     except client.exceptions.ApiException as e:
         return jsonify({"error": str(e)}), 500
@@ -66,7 +70,7 @@ def all_applications():
         all_deployment_statuses = []
         for deployment in deployments.items:
             app_name = deployment.metadata.name
-            deployment_status = create_predefined.get_deployment_status_and_pods(namespace=namespace, app_name=app_name)
+            deployment_status = get_deployment_status_and_pods(namespace=namespace, app_name=app_name)
             all_deployment_statuses.append(deployment_status)
 
         return jsonify(all_deployment_statuses)
@@ -152,5 +156,5 @@ def health_check():
 #     return jsonify({"status": "healthy"}), 200
 
 if __name__ == '__main__':
-    start_http_server(8000)  # Start Prometheus metrics exporter
+    # start_http_server(8001)  # Start Prometheus metrics exporter
     app.run(debug=True,host='0.0.0.0', port=4040)

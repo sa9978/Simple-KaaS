@@ -2,7 +2,7 @@ from kubernetes import client, config
 import base64
 import logging
 # Load Kubernetes configuration
-config.load_kube_config()
+config.load_incluster_config()
 
 
 core_v1_api = client.CoreV1Api()

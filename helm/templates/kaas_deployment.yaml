@@ -6,6 +6,10 @@ metadata:
   labels:
     app: {{.Values.name.app}}
     namespace: {{.Values.namespece}}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8080"
 spec:
   replicas: {{.Values.deployment.replicas}}
   selector:
@@ -26,6 +30,7 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: {{.Values.network.port}}
+        - containerPort:  8001
         livenessProbe:
           httpGet:
             path: /healthz
